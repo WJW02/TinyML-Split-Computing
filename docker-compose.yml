@@ -1,0 +1,10 @@
+version: '3.0'
+services:
+  flask-server:
+    build:
+      context: ./
+      dockerfile: ./src/Dockerfile
+    container_name: "flask-server"
+    restart: always
+    ports:
+      - "8080:8080"
