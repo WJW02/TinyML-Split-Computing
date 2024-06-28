@@ -12,7 +12,8 @@ class Logger:
         self.configure_logger()
         self.log_file = 'app.log'
 
-    def generate_log_file_name(self, filename='app.log'):
+    @staticmethod
+    def add_timestamp_to_filename(filename='app.log'):
         log_name = filename.split('.')[0]
         return f"{log_name}_{datetime.datetime.now().strftime('%Y%m%d')}.log"
 
@@ -28,7 +29,7 @@ class Logger:
 
             # Set the log file path
             log_name = config['handlers']['fileHandler']['filename']
-            self.log_file = self.generate_log_file_name(filename=log_name)
+            self.log_file = self.add_timestamp_to_filename(filename=log_name)
 
             log_file_path = os.path.join(self.log_dir, self.log_file)
             config['handlers']['fileHandler']['filename'] = log_file_path
