@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_smorest import abort
 
-from flask_server.configs.configs import OffloadingApiConfigs, OffloadingApiMessages
+from flask_server.configs.configs import OffloadingApiConfigs, OffloadingApiMessages, OffloadingManagerConfigs
 from flask_server.offloading.OffloadingManager import OffloadingManager
 from flask_server.offloading.schemas import OffloadingSchema, OffloadingErrorSchema
 
@@ -51,8 +51,12 @@ class OffloadingView(MethodView):
             abort(400, description=OffloadingApiMessages.NAME_KEY_MISSING, details=str(e))
 
         try:
-            offloading_tool = OffloadingManager()
-            result = offloading_tool.offload(model_name=model_name)
+            offloading_tool = OffloadingManager(
+                model_name=model_name,
+                algorithm_version=OffloadingManagerConfigs.DEFAULT_ALGORITHM_VERSION,
+                working_strategy=OffloadingManagerConfigs.DEFAULT_WORKING_STRATEGY
+            )
+            result = offloading_tool.offload()
             return jsonify({"text": result}), 200
         except Exception as e:
             abort(500, description=OffloadingApiMessages.UNEXPECTED_ERROR, details=str(e))
