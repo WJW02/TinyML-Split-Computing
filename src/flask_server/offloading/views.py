@@ -4,7 +4,7 @@ from flask_smorest import Blueprint
 from flask_smorest import abort
 
 from flask_server.configs.configs import OffloadingApiConfigs, OffloadingApiMessages, OffloadingManagerConfigs
-from flask_server.offloading.OffloadingManager import OffloadingManager
+from flask_server.offloading.offloading_manager import OffloadingManager
 from flask_server.offloading.schemas import OffloadingSchema, OffloadingErrorSchema
 
 offloading_blp = Blueprint(
