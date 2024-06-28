@@ -19,17 +19,17 @@ def client(app):
     return app.test_client()
 
 
-def test_say_hello_success(client):
+def test_offloading_api_success(client):
     response = client.post('api/perform-offloading', json={"model_name": "basic_model"})
     assert response.status_code == 200
 
 
-def test_say_hello_failure_wrong_args(client):
+def test_offloading_api_failure_wrong_args(client):
     response = client.post('api/perform-offloading', json={"wrong_key": "basic_model"})
     assert response.status_code == 422
 
 
-def test_say_hello_failure_no_args(client):
+def test_offloading_api_failure_no_args(client):
     response = client.post('api/perform-offloading', json={})
     assert response.status_code == 400
 

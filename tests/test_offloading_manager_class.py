@@ -1,7 +1,7 @@
 import pytest
 
 from flask_server.configs.configs import OffloadingManagerConfigs
-from flask_server.offloading.OffloadingManager import OffloadingManager
+from flask_server.offloading.offloading_manager import OffloadingManager
 
 
 def test_offloading_without_model_name():
