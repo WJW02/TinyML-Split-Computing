@@ -2,7 +2,10 @@ from marshmallow import Schema, fields
 
 
 class OffloadingSchema(Schema):
-    model_name = fields.String(required=False)
+    model_name = fields.String(required=True)
+    start_layer_index = fields.Integer(required=False)
+    working_strategy = fields.String(required=False)
+    algorithm_version = fields.String(required=False)
 
 
 class OffloadingErrorSchema(Schema):
