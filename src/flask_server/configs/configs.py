@@ -18,3 +18,7 @@ class OffloadingApiMessages:
 
 class OffloadingManagerConfigs:
     DEFAULT_ALGORITHM_VERSION = "0.0.1"
+    DEFAULT_WORKING_STRATEGY = "static"
+    DEFAULT_MODEL_NAME = "model.pth"
+    ALLOWED_WORKING_STRATEGIES = ["static", "dynamic"]
+    DEFAULT_START_LAYER_INDEX = 0
