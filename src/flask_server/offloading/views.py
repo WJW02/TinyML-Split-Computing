@@ -14,10 +14,11 @@ offloading_blp = Blueprint(
     url_prefix=OffloadingApiConfigs.OPENAPI_URL_PREFIX,
 )
 
+from flask import request
+
 
 @offloading_blp.route("/perform-offloading", methods=["POST"])
 class OffloadingView(MethodView):
-    @offloading_blp.arguments(OffloadingSchema)
     @offloading_blp.response(status_code=200, description=OffloadingApiMessages.SUCCESS_RESPONSE,
                              schema=OffloadingSchema)
     @offloading_blp.response(status_code=500, description=OffloadingApiMessages.UNEXPECTED_ERROR,
@@ -26,10 +27,7 @@ class OffloadingView(MethodView):
     @offloading_blp.response(status_code=400, description=OffloadingApiMessages.NAME_KEY_MISSING,
                              schema=OffloadingErrorSchema,
                              example={"message": OffloadingApiMessages.NAME_KEY_MISSING})
-    @offloading_blp.response(status_code=422, description=OffloadingApiMessages.WRONG_NAME_KEY,
-                             schema=OffloadingErrorSchema,
-                             example={"message": OffloadingApiMessages.WRONG_NAME_KEY})
-    def post(self, body):
+    def post(self):
         """
         A POST method to perform offloading of a Neural Network Model.
 
@@ -43,13 +41,12 @@ class OffloadingView(MethodView):
             400: If the provided model_name is missing in the request body.
             500: If an unexpected error occurs during the process.
         """
-        try:
-            device_id = body.get("device_id")
-            model_name = body.get("model_name")
-            if model_name is None:
-                abort(400, description=OffloadingApiMessages.NAME_KEY_MISSING)
-        except KeyError as e:
-            abort(400, description=OffloadingApiMessages.NAME_KEY_MISSING, details=str(e))
+        body = request.get_json() or {}
+        model_name = body.get("model_name")
+        device_id = body.get("device_id")
+
+        if model_name is None or device_id is None:
+            abort(400, description=OffloadingApiMessages.NAME_KEY_MISSING)
 
         try:
             offloading_tool = OffloadingManager(
