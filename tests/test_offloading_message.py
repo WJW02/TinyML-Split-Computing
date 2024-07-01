@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from flask_server.offloading.offloading_message import OffloadingMessage
 
 
@@ -40,7 +42,5 @@ def test_get_message_size():
 
 
 if __name__ == "__main__":
-    test_get_message_data()
-    test_evaluate_latency_and_speed()
-    test_get_message_payload()
-    test_get_message_size()
+    pytest.main()
+
