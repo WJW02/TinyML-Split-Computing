@@ -44,6 +44,7 @@ class OffloadingView(MethodView):
             500: If an unexpected error occurs during the process.
         """
         try:
+            device_id = body.get("device_id")
             model_name = body.get("model_name")
             if model_name is None:
                 abort(400, description=OffloadingApiMessages.NAME_KEY_MISSING)
@@ -54,7 +55,8 @@ class OffloadingView(MethodView):
             offloading_tool = OffloadingManager(
                 model_name=model_name,
                 algorithm_version=OffloadingManagerConfigs.DEFAULT_ALGORITHM_VERSION,
-                working_strategy=OffloadingManagerConfigs.DEFAULT_WORKING_STRATEGY
+                working_strategy=OffloadingManagerConfigs.DEFAULT_WORKING_STRATEGY,
+                start_layer_index=OffloadingManagerConfigs.DEFAULT_START_LAYER_INDEX
             )
             result = offloading_tool.offload()
             return jsonify({"text": result}), 200
