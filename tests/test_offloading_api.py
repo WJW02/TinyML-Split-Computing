@@ -1,7 +1,6 @@
 import pytest
 from flask import Flask
 
-from flask_server.configs.configs import OffloadingApiMessages
 from flask_server.offloading.views import offloading_blp
 
 
@@ -20,7 +19,8 @@ def client(app):
 
 
 def test_offloading_api_success(client):
-    response = client.post('api/perform-offloading', json={"model_name": "basic_model"})
+    request_body = {"device_id": "basic_device", "model_name": "basic_model"}
+    response = client.post('api/perform-offloading', json=request_body)
     assert response.status_code == 200
 
 
