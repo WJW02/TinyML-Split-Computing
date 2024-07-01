@@ -1,9 +1,9 @@
 import pytest
-from src.logger.Logger import Logger
-from src.flask_server.offloading.offloading_algo import OffloadingAlgo
+from logger.Logger import Logger
+from flask_server.offloading.offloading_algo import OffloadingAlgo
 
 # Initialize logger for testing
-logger = Logger(config_path='../src/logger/logger_config.json').get_logger(__name__)
+logger = Logger(config_path='./src/logger/logger_config.json').get_logger(__name__)
 
 
 @pytest.fixture
@@ -63,6 +63,5 @@ def test_static_offloading(offloading_algo_instance, caplog):
     assert "Computation Completed - Offloading Summary:" in [rec.message for rec in caplog.records]
 
 
-# Run the tests if the script is executed directly
 if __name__ == "__main__":
     pytest.main()
