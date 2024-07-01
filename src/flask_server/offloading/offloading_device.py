@@ -22,7 +22,7 @@ class OffloadingDevice:
 
 class OffloadingDevicesManager:
     def __init__(self):
-        self.connected_devices = {}
+        self.connected_devices = []
         self.outdated_device_threshold = 10
 
     def remove_outdated_devices(self) -> None:
@@ -34,7 +34,7 @@ class OffloadingDevicesManager:
             last_message = device.get_last_message()
             if last_message is None or last_message.message_received_timestamp < time_limit:
                 logger.info(f"Removing device {device.device_id} due to outdated message")
-                del self.connected_devices[device]
+                self.connected_devices.remove(device)
         logger.info(f"Connected devices ({len(self.connected_devices)}): {self.connected_devices}")
 
     def get_device(self, device_id: str) -> OffloadingDevice:
@@ -45,12 +45,14 @@ class OffloadingDevicesManager:
 
     def update_connected_devices(self, device_id: str, offloading_message: OffloadingMessage) -> None:
         logger.info("Checking connected devices")
-        if device_id not in self.connected_devices.keys():
+
+        if not self.get_device(device_id):
             logger.debug("Adding a new device")
             device = OffloadingDevice(device_id)
         else:
             logger.debug("Device already exists")
             device = self.get_device(device_id)
+        self.connected_devices.append(device)
         device.add_message(offloading_message)
         logger.info(f"Device {device_id} connected")
         logger.info(f"Connected devices ({len(self.connected_devices)}): {self.connected_devices}")
