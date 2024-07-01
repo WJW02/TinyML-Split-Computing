@@ -2,6 +2,7 @@ from marshmallow import Schema, fields
 
 
 class OffloadingSchema(Schema):
+    device_id = fields.String(required=True)
     model_name = fields.String(required=True)
     start_layer_index = fields.Integer(required=False)
     working_strategy = fields.String(required=False)
