@@ -3,4 +3,4 @@
 !**/*.py
 !src
 !pyproject.toml
-!simple-device
+!src/simple-device
