@@ -19,11 +19,17 @@ class OffloadingDevice:
             return None
         return self.sent_messages[-1]
 
+    def to_dict(self) -> dict:
+        return {
+            'device_id': self.device_id,
+            'sent_messages': [message.to_dict() for message in self.sent_messages]
+        }
+
 
 class OffloadingDevicesManager:
     def __init__(self):
         self.connected_devices = []
-        self.outdated_device_threshold = 10
+        self.outdated_device_threshold = 10000  # 10 seconds
 
     def remove_outdated_devices(self) -> None:
         logger.info("Removing outdated devices")
@@ -49,10 +55,15 @@ class OffloadingDevicesManager:
         if not self.get_device(device_id):
             logger.debug("Adding a new device")
             device = OffloadingDevice(device_id)
+            self.connected_devices.append(device)
         else:
             logger.debug("Device already exists")
             device = self.get_device(device_id)
-        self.connected_devices.append(device)
         device.add_message(offloading_message)
         logger.info(f"Device {device_id} connected")
-        logger.info(f"Connected devices ({len(self.connected_devices)}): {self.connected_devices}")
+        logger.info(f"Connected devices: ({len(self.connected_devices)}): {self.get_connected_devices(as_dict=True)}")
+
+    def get_connected_devices(self, as_dict: bool = False) -> list:
+        if as_dict:
+            return [device.to_dict() for device in self.connected_devices]
+        return self.connected_devices
