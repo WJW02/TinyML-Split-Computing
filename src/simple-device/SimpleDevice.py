@@ -4,7 +4,7 @@ import requests
 
 from logger.Logger import Logger
 
-logger = Logger(config_path="../src/logger/logger_config.json").get_logger(__name__)
+logger = Logger(config_path="../logger/logger_config.json").get_logger(__name__)
 
 
 class SimpleDevice:
