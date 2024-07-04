@@ -7,7 +7,7 @@ from flask_server.offloading.offloading_message import OffloadingMessage
 
 class MockResponse:
     def __init__(self, text):
-        self.text = text
+        self.payload = text
 
 
 @pytest.fixture

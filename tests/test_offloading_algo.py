@@ -3,7 +3,7 @@ from logger.Logger import Logger
 from flask_server.offloading.offloading_algo import OffloadingAlgo
 
 # Initialize logger for testing
-logger = Logger(config_path='./src/logger/logger_config.json').get_logger(__name__)
+logger = Logger(config_path='./logger/logger_config.json').get_logger(__name__)
 
 
 @pytest.fixture

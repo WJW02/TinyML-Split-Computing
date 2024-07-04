@@ -42,11 +42,11 @@ def test_remove_outdated_devices(message):
     assert "device_123" not in manager.connected_devices
 
 
-def test_get_device():
+def test_get_device(message):
     manager = OffloadingDevicesManager()
     device = OffloadingDevice(device_id="device_123")
-    manager.update_connected_devices("device_123", None)
-    manager.update_connected_devices("device_1234", None)
+    manager.update_connected_devices("device_123", message)
+    manager.update_connected_devices("device_1234", message)
 
     retrieved_device = manager.get_device("device_123")
     assert retrieved_device.device_id == device.device_id

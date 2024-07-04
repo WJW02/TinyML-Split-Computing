@@ -5,13 +5,8 @@ import pytest
 from flask_server.offloading.offloading_message import OffloadingMessage
 
 
-class MockResponse:
-    def __init__(self, text):
-        self.text = text
-
-
 def test_get_message_data():
-    message_data = MockResponse(json.dumps({'key': 'value'}))
+    message_data = {'payload': json.dumps({'key': 'value'})}
     message = OffloadingMessage(message_data=message_data)
     payload, message_size_bits, message_received_timestamp = message.get_message_data()
 
@@ -21,7 +16,7 @@ def test_get_message_data():
 
 
 def test_evaluate_latency_and_speed():
-    message_data = {'text': json.dumps({'key': 'value'})}
+    message_data = {'payload': json.dumps({'key': 'value'})}
     message = OffloadingMessage(message_data=message_data, use_synthetic_latency=False)
     latency, avg_speed = message.evaluate_latency_and_speed()
 
@@ -30,7 +25,7 @@ def test_evaluate_latency_and_speed():
 
 
 def test_get_message_payload():
-    message_data = MockResponse(json.dumps({'key': 'value'}))
+    message_data = {'payload': json.dumps({'key': 'value'})}
     payload = OffloadingMessage.get_message_payload(message_data)
     assert payload == {'key': 'value'}
 
@@ -43,4 +38,3 @@ def test_get_message_size():
 
 if __name__ == "__main__":
     pytest.main()
-
