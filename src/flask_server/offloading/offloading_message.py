@@ -34,15 +34,15 @@ class OffloadingMessage:
         return latency, avg_speed
 
     @staticmethod
-    def get_message_payload(message) -> dict:
+    def get_message_payload(message: dict) -> dict:
         logger.info("Extracting payload from message")
         try:
-            if isinstance(message.text, str):
-                payload_str = message.text
-                payload = json.loads(payload_str)
-                return payload
+            payload = message.get('payload')
+            logger.info(f"Message payload: {payload}")
+            if isinstance(payload, str):
+                return {"payload": payload.encode('utf-8').decode('utf-8')}
             else:
-                logger.error("Error: Message text is not a string.")
+                logger.error("Error: Message payload is not a string.")
                 return None
         except json.JSONDecodeError:
             logger.error("Error: Payload is not a valid JSON.")
@@ -57,3 +57,6 @@ class OffloadingMessage:
         size_in_bytes = sys.getsizeof(payload_str)
         size_in_bits = size_in_bytes * 8
         return size_in_bits
+
+    def to_dict(self) -> dict:
+        return self.__dict__
