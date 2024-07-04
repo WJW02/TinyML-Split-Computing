@@ -5,9 +5,13 @@ from flask_smorest import Blueprint
 from flask_smorest import abort
 
 from flask_server.configs.configs import OffloadingApiConfigs, OffloadingApiMessages, OffloadingManagerConfigs
-from flask_server.offloading.offloading_communication import OffloadingCommunicationHandler
-from flask_server.offloading.offloading_manager import OffloadingManager
 from flask_server.offloading.schemas import OffloadingSchema, OffloadingErrorSchema
+from logger.Logger import Logger
+from nn_model.model_manager import ModelManager
+from offloading_tools.offloading_communication import OffloadingCommunicationHandler
+from offloading_tools.offloading_manager import OffloadingManager
+
+logger = Logger().get_logger(__name__)
 
 offloading_blp = Blueprint(
     "offloading_blp",
@@ -55,13 +59,23 @@ class OffloadingView(MethodView):
             # Handles incoming message from device
             offloading_communication_handler.handle_incoming_message(message=body, device_id=device_id)
 
+            # Initializes the offloading tool
             offloading_tool = OffloadingManager(
-                model_name=model_name,
                 algorithm_version=OffloadingManagerConfigs.DEFAULT_ALGORITHM_VERSION,
                 working_strategy=OffloadingManagerConfigs.DEFAULT_WORKING_STRATEGY,
                 start_layer_index=OffloadingManagerConfigs.DEFAULT_START_LAYER_INDEX
             )
-            result = offloading_tool.offload()
+
+            # Initializes the model to be offloaded
+            nn_model = ModelManager(model_name=model_name, model_path='./')
+
+            # Gets the last message from the device
+            device = offloading_communication_handler.device_manager.get_device(device_id)
+            offloading_message = device.get_last_message()
+
+            # Offloads the model
+            result = offloading_tool.offload(offloading_message=offloading_message, model=nn_model)
+
             return jsonify({"text": result}), 200
         except Exception as e:
             abort(500, description=OffloadingApiMessages.UNEXPECTED_ERROR, message=str(e))
