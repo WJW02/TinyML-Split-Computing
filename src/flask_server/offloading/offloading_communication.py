@@ -21,3 +21,6 @@ class OffloadingCommunicationHandler:
         offloading_message = OffloadingMessage(message_data=message)
         self.device_manager.remove_outdated_devices()
         self.device_manager.update_connected_devices(device_id, offloading_message)
+
+    def get_communication_status(self) -> json:
+        return self.device_manager.get_connected_devices(as_dict=True)
