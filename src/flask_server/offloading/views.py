@@ -1,9 +1,11 @@
 from flask import jsonify
+from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_smorest import abort
 
 from flask_server.configs.configs import OffloadingApiConfigs, OffloadingApiMessages, OffloadingManagerConfigs
+from flask_server.offloading.offloading_communication import OffloadingCommunicationHandler
 from flask_server.offloading.offloading_manager import OffloadingManager
 from flask_server.offloading.schemas import OffloadingSchema, OffloadingErrorSchema
 
@@ -14,7 +16,8 @@ offloading_blp = Blueprint(
     url_prefix=OffloadingApiConfigs.OPENAPI_URL_PREFIX,
 )
 
-from flask import request
+# Initialize communication handler
+offloading_communication_handler = OffloadingCommunicationHandler()
 
 
 @offloading_blp.route("/perform-offloading", methods=["POST"])
@@ -46,9 +49,12 @@ class OffloadingView(MethodView):
         device_id = body.get("device_id")
 
         if model_name is None or device_id is None:
-            abort(400, description=OffloadingApiMessages.NAME_KEY_MISSING)
+            abort(400, description=OffloadingApiMessages.NAME_KEY_MISSING, message="Missing model_name or device_id")
 
         try:
+            # Handles incoming message from device
+            offloading_communication_handler.handle_incoming_message(message=body, device_id=device_id)
+
             offloading_tool = OffloadingManager(
                 model_name=model_name,
                 algorithm_version=OffloadingManagerConfigs.DEFAULT_ALGORITHM_VERSION,
@@ -58,4 +64,31 @@ class OffloadingView(MethodView):
             result = offloading_tool.offload()
             return jsonify({"text": result}), 200
         except Exception as e:
-            abort(500, description=OffloadingApiMessages.UNEXPECTED_ERROR, details=str(e))
+            abort(500, description=OffloadingApiMessages.UNEXPECTED_ERROR, message=str(e))
+
+
+@offloading_blp.route("/get-offloading-communication-status", methods=["GET"])
+class OffloadingCommunicationView(MethodView):
+    @offloading_blp.response(status_code=200, description=OffloadingApiMessages.SUCCESS_RESPONSE,
+                             schema=OffloadingSchema)
+    @offloading_blp.response(status_code=500, description=OffloadingApiMessages.UNEXPECTED_ERROR,
+                             schema=OffloadingErrorSchema,
+                             example={"message": OffloadingApiMessages.UNEXPECTED_ERROR})
+    @offloading_blp.response(status_code=400, description=OffloadingApiMessages.NAME_KEY_MISSING,
+                             schema=OffloadingErrorSchema,
+                             example={"message": OffloadingApiMessages.NAME_KEY_MISSING})
+    def get(self):
+        """
+        A GET method to get the status of the offloading communication.
+
+        Returns:
+            dict: A dictionary with a "text" key containing the status of the offloading communication.
+
+        Raises:
+            500: If an unexpected error occurs during the process.
+        """
+        try:
+            result = offloading_communication_handler.get_communication_status()
+            return jsonify({"code": 200, "message": "Success", "communication_data": result}), 200
+        except Exception as e:
+            abort(500, description=e, message=str(e))
