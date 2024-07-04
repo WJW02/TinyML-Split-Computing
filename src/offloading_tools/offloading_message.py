@@ -39,7 +39,7 @@ class OffloadingMessage:
         try:
             payload = message.get('payload')
             logger.info(f"Message payload: {payload}")
-            return json.loads(payload)
+            return payload
         except json.JSONDecodeError:
             logger.error("Error: Payload is not a valid JSON.")
             return None

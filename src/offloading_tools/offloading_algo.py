@@ -16,7 +16,6 @@ class OffloadingAlgo:
         self.layers_sizes = layers_sizes
         self.inference_time_device = inference_time_device
         self.inference_time_edge = inference_time_edge
-
         self.best_offloading_layer = 0
         self.lowest_evaluation = float('inf')
 
@@ -49,7 +48,7 @@ class OffloadingAlgo:
     def mixed_computation_evaluation(self):
         # Partial Offloading: Edge and Device Computation
         logger.info(f"Performing Partial Offloading:")
-        for layer in range(0, self.num_layers):
+        for layer in range(0, self.num_layers - 1):
             initial_cost = (0 if layer == 0 else sum(self.inference_time_device[:layer]))
             edge_computation_cost = sum(self.inference_time_edge[layer:self.num_layers])
             layer_data_size = self.layers_sizes[layer + 1]
@@ -94,3 +93,6 @@ class OffloadingAlgo:
         logger.info(f"Best Offloading Layer: {self.best_offloading_layer}")
 
         return self.best_offloading_layer
+
+    def get_info(self):
+        return self.__dict__

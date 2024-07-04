@@ -1,11 +1,16 @@
 import inspect
 
 from flask_server.configs.configs import OffloadingManagerConfigs
+from logger.Logger import Logger
+from nn_model.model_manager import ModelManager
+from offloading_tools.offloading_algo import OffloadingAlgo
+from offloading_tools.offloading_message import OffloadingMessage
+
+logger = Logger().get_logger(__name__)
 
 
 class OffloadingManager:
     def __init__(self,
-                 model_name: str = None,
                  algorithm_version: str = None,
                  working_strategy: str = None,
                  start_layer_index: int = None
@@ -15,20 +20,9 @@ class OffloadingManager:
         self.allowed_working_strategies = OffloadingManagerConfigs.ALLOWED_WORKING_STRATEGIES
 
         # Set up with provided or default values
-        self.model_name = model_name or OffloadingManagerConfigs.DEFAULT_MODEL_NAME
         self.algorithm_version = algorithm_version or OffloadingManagerConfigs.DEFAULT_ALGORITHM_VERSION
         self.working_strategy = working_strategy or OffloadingManagerConfigs.DEFAULT_WORKING_STRATEGY
         self.start_layer_index = start_layer_index or OffloadingManagerConfigs.DEFAULT_START_LAYER_INDEX
-
-    @property
-    def model_name(self):
-        return self._model_name
-
-    @model_name.setter
-    def model_name(self, value):
-        if value is None:
-            raise ValueError("Error: parameter [model_name] cannot be None")
-        self._model_name = value
 
     @property
     def algorithm_version(self):
@@ -62,5 +56,29 @@ class OffloadingManager:
             raise ValueError("Error: parameter [start_layer_index] must be a non-negative integer")
         self._start_layer_index = value
 
-    def offload(self) -> str:
-        return f"Offloading [{self.algorithm_version}]: {self.model_name}"
+    def prepare_offloading_data(self):
+        pass
+
+    def offload(self, offloading_message: OffloadingMessage, model: ModelManager) -> int:
+        logger.info("Starting offloading process")
+
+        offloading_algo = OffloadingAlgo(
+            avg_speed=offloading_message.transfer_speed,
+            num_layers=model.num_layers,
+            layers_sizes=model.layers_sizes,
+            inference_time_device=model.inference_time_device,
+            inference_time_edge=model.inference_time_edge
+        )
+
+        logger.info(f"Computing Offloading: ")
+        best_offloading_layer = offloading_algo.static_offloading()
+
+        result = {
+            "best_offloading_layer": best_offloading_layer,
+            "offloaded_model_info": model.get_info(),
+            "offloading_algo_info": offloading_algo.get_info(),
+            "additional_info": self.__dict__
+
+        }
+        logger.info(f"Offloading result: \n{result}")
+        return result

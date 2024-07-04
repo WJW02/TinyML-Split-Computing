@@ -1,6 +1,6 @@
 import time
 
-from flask_server.offloading.offloading_message import OffloadingMessage
+from offloading_tools.offloading_message import OffloadingMessage
 from logger.Logger import Logger
 
 logger = Logger().get_logger(__name__)
