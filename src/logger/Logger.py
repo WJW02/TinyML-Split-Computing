@@ -6,7 +6,7 @@ import os
 
 
 class Logger:
-    def __init__(self, config_path='./src/logger/logger_config.json'):
+    def __init__(self, config_path='./logger/logger_config.json'):
         self.config_path = config_path
         self.log_dir = 'logs'
         self.log_file = 'app.log'
