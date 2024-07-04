@@ -39,22 +39,18 @@ class OffloadingMessage:
         try:
             payload = message.get('payload')
             logger.info(f"Message payload: {payload}")
-            if isinstance(payload, str):
-                return {"payload": payload.encode('utf-8').decode('utf-8')}
-            else:
-                logger.error("Error: Message payload is not a string.")
-                return None
+            return json.loads(payload)
         except json.JSONDecodeError:
             logger.error("Error: Payload is not a valid JSON.")
             return None
-        except AttributeError:
-            logger.error("Error: Message object does not have text attribute.")
+        except Exception as e:
+            logger.error(f"Error: {e}.")
             return None
 
     @staticmethod
-    def get_message_size(payload_str: str) -> int:
+    def get_message_size(payload: dict) -> int:
         logger.info("Extracting size(bits) from message")
-        size_in_bytes = sys.getsizeof(payload_str)
+        size_in_bytes = sys.getsizeof(payload)
         size_in_bits = size_in_bytes * 8
         return size_in_bits
 
