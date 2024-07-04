@@ -2,7 +2,7 @@ import time
 
 import pytest
 
-from flask_server.offloading.offloading_device import OffloadingDevice, OffloadingDevicesManager
+from offloading_tools.offloading_device import OffloadingDevice, OffloadingDevicesManager
 
 
 def test_add_message(message):

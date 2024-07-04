@@ -1,6 +1,6 @@
 import pytest
 
-from flask_server.offloading.offloading_communication import OffloadingCommunicationHandler
+from offloading_tools.offloading_communication import OffloadingCommunicationHandler
 
 
 def test_handle_incoming_message(message):

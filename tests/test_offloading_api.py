@@ -1,6 +1,8 @@
+from unittest.mock import patch
+
 import pytest
 from flask import Flask
-from unittest.mock import patch
+
 from flask_server.offloading.views import offloading_blp
 
 
@@ -18,7 +20,7 @@ def client(app):
 
 
 def test_offloading_api_success(client):
-    request_body = {"device_id": "basic_device", "model_name": "basic_model"}
+    request_body = {"device_id": "basic_device", "model_name": "basic_model", "payload": {'key': 'value'}}
     response = client.post('api/perform-offloading', json=request_body)
     assert response.status_code == 200
 

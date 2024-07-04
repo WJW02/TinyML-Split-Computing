@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from flask_server.offloading.offloading_message import OffloadingMessage
+from offloading_tools.offloading_message import OffloadingMessage
 
 
 class MockResponse:
