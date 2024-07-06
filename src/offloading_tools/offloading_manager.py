@@ -2,7 +2,7 @@ import inspect
 
 from configs.configs import OffloadingManagerConfigs
 from logger.Logger import Logger
-from nn_model.model_manager import ModelManager
+from nn_model.offloading_model_manager import ModelManager
 from offloading_tools.offloading_algo import OffloadingAlgo
 from offloading_tools.offloading_message import OffloadingMessage
 
