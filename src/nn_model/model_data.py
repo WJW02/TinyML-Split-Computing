@@ -1,4 +1,6 @@
 import numpy as np
+import tensorflow as tf
+import os
 from PIL import Image, ImageDraw, ImageFont
 
 from logger.Logger import Logger
@@ -14,7 +16,6 @@ class ModelData:
         self.images = []
         self.labels = []
         self.images_paths = []
-        self.images_as_raw = []
 
     def generate_dataset(self):
         logger.info("Creating Data for Inference and Training")
@@ -26,11 +27,9 @@ class ModelData:
             label_text = str(self.labels[i][0])
             image_path = f'image_{i}.png'
             image = self.create_image(label_text)
-            image_raw = self.get_image_as_raw(image=image)
             self.save_image(image, image_path)
             self.images.append(image)
             self.images_paths.append(image_path)
-            self.images_as_raw.append(image_raw)
 
     def create_image(self, text: str):
         # Create a blank image
@@ -50,14 +49,14 @@ class ModelData:
     def save_image(self, image, image_path):
         image.save(f'{self.dataset_path}/{image_path}')
 
-    def get_image_as_raw(self, image: str or None, image_path: str or None = None):
-        if image_path is not None:
-            image = Image.open(image_path)  # Open the PNG image
-            image = image.resize((self.image_size, self.image_size))  # Resize the image to the desired width and height
-        image = image.convert('L')  # Convert the image to grayscale
-        img_array = np.array(image)  # Convert the image to a NumPy array
-        flat_array = img_array.flatten()  # Flatten the 2D array to a 1D array (row-major order)
-        return flat_array
+    def get_image_as_raw(self, image_path: str):
+        img = tf.keras.preprocessing.image.load_img(
+            os.path.join(self.dataset_path, image_path),
+            target_size=(self.image_size, self.image_size)
+        )
+        img_array = tf.keras.preprocessing.image.img_to_array(img)
+        img_array /= 255.0
+        return img_array
 
     def raw_image_to_png(self, image_raw):
         # Convert the raw data to a NumPy array
