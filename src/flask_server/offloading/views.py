@@ -7,7 +7,7 @@ from flask_smorest import abort
 from configs.configs import OffloadingApiConfigs, OffloadingApiMessages, OffloadingManagerConfigs
 from flask_server.offloading.schemas import OffloadingSchema, OffloadingErrorSchema
 from logger.Logger import Logger
-from nn_model.model_manager import ModelManager
+from nn_model.offloading_model_manager import ModelManager
 from offloading_tools.offloading_communication import OffloadingCommunicationHandler
 from offloading_tools.offloading_manager import OffloadingManager
 
