@@ -7,8 +7,16 @@ class ModelManager:
         self.layers_sizes = []
         self.inference_time_device = []
         self.inference_time_edge = []
-
         self.load_model_information()
+        self.model = None
+
+    def load_model(self):
+        self.num_layers = len(self.model.layers)
+        # TODO: if the stats of the model do not exists create them so: first inference for each layer, store
+        return tf.keras.models.load_model(self.model_path)
+
+    def get_model_layer(self, layer_id):
+        return self.model.layers[layer_id]
 
     def load_model_information(self):
         self.num_layers = 5
@@ -18,3 +26,11 @@ class ModelManager:
 
     def get_info(self):
         return self.__dict__
+
+    @staticmethod
+    def calculate_layer_size_in_bits(layer_output):
+        dtype = layer_output.dtype  # Get the data type of the layer output
+        # Calculate the size in bits and convert to Python scalar for writing to CSV
+        size_in_bits = tf.reduce_prod(layer_output.shape) * tf.constant(dtype.itemsize * 8)
+        size_in_bits = size_in_bits.numpy()
+        return size_in_bits
