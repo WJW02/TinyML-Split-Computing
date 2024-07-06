@@ -29,3 +29,4 @@ class NeuralNetworkModelsConfigs:
     MODELS_DIR_PATH: str = "nn_model/models"
     DATASET_PATH: str = f"{MODELS_DIR_PATH}/{DEFAULT_MODEL_NAME}/data"
     IMAGE_SIZE: int = 20
+    BINARY_CLASSIFICATION_THRESHOLD: float = 0.5
