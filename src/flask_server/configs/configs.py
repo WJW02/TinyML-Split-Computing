@@ -22,3 +22,10 @@ class OffloadingManagerConfigs:
     DEFAULT_MODEL_NAME = "model.pth"
     ALLOWED_WORKING_STRATEGIES = ["static", "dynamic"]
     DEFAULT_START_LAYER_INDEX = 0
+
+
+class NeuralNetworkModelsConfigs:
+    DEFAULT_MODEL_NAME: str = "test_model"
+    MODELS_DIR_PATH: str = "nn_model/models"
+    DATASET_PATH: str = f"{MODELS_DIR_PATH}/{DEFAULT_MODEL_NAME}/data"
+    IMAGE_SIZE: int = 20
