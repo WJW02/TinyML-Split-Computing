@@ -1,5 +1,9 @@
 # TinyML Offloading and Split Computing
 
+### Contributors: 
+- **Fabio Bove:** [fabio.bove.dr@gmail.com]
+- **Luca Bedogni** []
+- **Simone Colli** []
 
 # Components Description
 
