@@ -34,6 +34,8 @@ dependencies = [
     "Werkzeug==3.0.3",
     "pytest-md==0.2.0",
     "git-changelog==2.5.2",
+    "scikit-learn==1.5.1",
+    "pillow==10.4.0"
 ]
 
 [project.optional-dependencies]
