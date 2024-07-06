@@ -10,7 +10,7 @@ def test_get_message_data():
     message = OffloadingMessage(message_data=message_data)
     payload, message_size_bits, message_received_timestamp = message.get_message_data()
 
-    assert payload == {'key': 'value'}
+    assert payload == '{"key": "value"}'
     assert isinstance(message_size_bits, int)
     assert isinstance(message_received_timestamp, float)
 
@@ -27,7 +27,7 @@ def test_evaluate_latency_and_speed():
 def test_get_message_payload():
     message_data = {'payload': json.dumps({'key': 'value'})}
     payload = OffloadingMessage.get_message_payload(message_data)
-    assert payload == {'key': 'value'}
+    assert payload == '{"key": "value"}'
 
 
 def test_get_message_size():
