@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_smorest import Api
 
-from flask_server.configs.configs import OffloadingApiConfigs
+from configs.configs import OffloadingApiConfigs
 
 
 def init_app(gunicorn_logger=None):

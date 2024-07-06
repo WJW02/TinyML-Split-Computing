@@ -4,7 +4,7 @@ from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_smorest import abort
 
-from flask_server.configs.configs import OffloadingApiConfigs, OffloadingApiMessages, OffloadingManagerConfigs
+from configs.configs import OffloadingApiConfigs, OffloadingApiMessages, OffloadingManagerConfigs
 from flask_server.offloading.schemas import OffloadingSchema, OffloadingErrorSchema
 from logger.Logger import Logger
 from nn_model.model_manager import ModelManager

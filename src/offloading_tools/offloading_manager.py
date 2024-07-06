@@ -1,6 +1,6 @@
 import inspect
 
-from flask_server.configs.configs import OffloadingManagerConfigs
+from configs.configs import OffloadingManagerConfigs
 from logger.Logger import Logger
 from nn_model.model_manager import ModelManager
 from offloading_tools.offloading_algo import OffloadingAlgo

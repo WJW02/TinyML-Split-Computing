@@ -1,6 +1,6 @@
 import pytest
 
-from flask_server.configs.configs import OffloadingManagerConfigs
+from configs.configs import OffloadingManagerConfigs
 from offloading_tools.offloading_manager import OffloadingManager
 
 
