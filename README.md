@@ -50,3 +50,15 @@
 ## Run tests
 1. (from the src folder: `cd ./src`) `pytest ../`
 
+
+
+# Features Under Development:
+ ## 1. Neural Network Models:
+- Tools to create a simple model for binary classification on images to test the offloading and split computing workflow:
+  - **ModelData** (class) `model_data`
+  - **ModelBuilder** (class) `model_builder`
+  - **create_train_model** (module) `create_train_model`
+  - **ModelManager** (class) `model_manager`: Refactor and Update to support a real prediction
+  
+# Future Improvements:
+ - Accept different types of models (now only supports tf)
