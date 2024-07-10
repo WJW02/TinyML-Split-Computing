@@ -3,20 +3,20 @@
   "disable_existing_loggers": false,
   "loggers": {
     "root": {
-      "level": "DEBUG",
+      "level": "INFO",
       "handlers": ["consoleHandler", "fileHandler"]
     }
   },
   "handlers": {
     "consoleHandler": {
       "class": "logging.StreamHandler",
-      "level": "DEBUG",
+      "level": "INFO",
       "formatter": "simpleFormatter",
       "stream": "ext://sys.stdout"
     },
     "fileHandler": {
       "class": "logging.FileHandler",
-      "level": "DEBUG",
+      "level": "INFO",
       "formatter": "simpleFormatter",
       "filename": "flask_server.log",
       "mode": "a"
