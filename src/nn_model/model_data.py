@@ -1,6 +1,7 @@
+import os
+
 import numpy as np
 import tensorflow as tf
-import os
 from PIL import Image, ImageDraw, ImageFont
 
 from logger.Logger import Logger
@@ -27,9 +28,18 @@ class ModelData:
             label_text = str(self.labels[i][0])
             image_path = f'image_{i}.png'
             image = self.create_image(label_text)
-            self.save_image(image, image_path)
+            self.save_image_and_label(image, label_text,image_path)
             self.images.append(image)
             self.images_paths.append(image_path)
+
+    def load_from_path(self, path: str):
+        self.images_paths = os.listdir(path)
+        self.images_paths.remove('labels.txt')
+        with open(f'{path}/labels.txt', 'r') as f:
+            self.labels = [label.strip() for label in f.readlines()]
+        for image_path in self.images_paths:
+            image = Image.open(os.path.join(path, image_path))
+            self.images.append(image)
 
     def create_image(self, text: str):
         # Create a blank image
@@ -46,16 +56,22 @@ class ModelData:
         draw.text((x, y), text, fill='black', font=font)
         return image
 
-    def save_image(self, image, image_path):
+    def save_image_and_label(self, image, label_text, image_path):
         image.save(f'{self.dataset_path}/{image_path}')
+        with open(f'{self.dataset_path}/labels.txt', 'a') as f:
+            f.write(f"{label_text}\n")
 
-    def get_image_as_raw(self, image_path: str):
+    def get_image_as_raw(self, image_path: str, expand_dims: bool = False):
         img = tf.keras.preprocessing.image.load_img(
             os.path.join(self.dataset_path, image_path),
             target_size=(self.image_size, self.image_size)
         )
         img_array = tf.keras.preprocessing.image.img_to_array(img)
-        img_array /= 255.0
+        img_array /= 255.0  # Normalize pixel values to be between 0 and 1
+        img_array = tf.image.resize(img_array, (self.image_size, self.image_size))
+
+        if expand_dims:
+            img_array = tf.expand_dims(img_array, 0)
         return img_array
 
     def raw_image_to_png(self, image_raw):
