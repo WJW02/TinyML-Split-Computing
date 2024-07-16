@@ -56,3 +56,18 @@ class OffloadingMessage:
 
     def to_dict(self) -> dict:
         return self.__dict__
+
+    def get_message_offloading_info(self, message: dict or None = None) -> dict:
+        logger.info("Extracting Offloading Information from message")
+        if message is None:
+            message = self.message_data
+        try:
+            offloading_info = message.get('offloading_information')
+            logger.info(f"Message Offloading Information: {offloading_info}")
+            return offloading_info
+        except json.JSONDecodeError:
+            logger.error("Error: Offloading Information is not a valid JSON.")
+            return None
+        except Exception as e:
+            logger.error(f"Error: {e}.")
+            return None
