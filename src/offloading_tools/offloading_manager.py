@@ -2,25 +2,19 @@ import inspect
 
 from configs.configs import OffloadingManagerConfigs
 from logger.Logger import Logger
-from nn_model.offloading_model_manager import ModelManager
+from offloading_tools.offloading_model import OffloadingModel
 from offloading_tools.offloading_algo import OffloadingAlgo
+from offloading_tools.offloading_device import OffloadingDevice
 from offloading_tools.offloading_message import OffloadingMessage
 
 logger = Logger().get_logger(__name__)
 
 
 class OffloadingManager:
-    def __init__(self,
-                 algorithm_version: str = None,
-                 working_strategy: str = None,
-                 start_layer_index: int = None
-                 ):
+    def __init__(self, working_strategy: str = None, start_layer_index: int = None):
 
         # Set up allowed working strategies
         self.allowed_working_strategies = OffloadingManagerConfigs.ALLOWED_WORKING_STRATEGIES
-
-        # Set up with provided or default values
-        self.algorithm_version = algorithm_version or OffloadingManagerConfigs.DEFAULT_ALGORITHM_VERSION
         self.working_strategy = working_strategy or OffloadingManagerConfigs.DEFAULT_WORKING_STRATEGY
         self.start_layer_index = start_layer_index or OffloadingManagerConfigs.DEFAULT_START_LAYER_INDEX
 
@@ -59,18 +53,21 @@ class OffloadingManager:
     def prepare_offloading_data(self):
         pass
 
-    def offload(self, offloading_message: OffloadingMessage, model: ModelManager) -> int:
+    def offload(self, offloading_message: OffloadingMessage, model: OffloadingModel, device: OffloadingDevice) -> int:
         logger.info("Starting offloading process")
+
+        logger.info(f"Computing Offloading: ")
+        logger.info(f"Offloading Message: {offloading_message.get_message_offloading_info()}")
+        logger.info(f"Device inference time: {device.layers_inference_time}")
+        logger.info(f"Edge inference time: {model.layers_inference_time}")
 
         offloading_algo = OffloadingAlgo(
             avg_speed=offloading_message.transfer_speed,
             num_layers=model.num_layers,
             layers_sizes=model.layers_sizes,
-            inference_time_device=model.inference_time_device,
-            inference_time_edge=model.inference_time_edge
+            inference_time_device=device.layers_inference_time,
+            inference_time_edge=model.layers_inference_time
         )
-
-        logger.info(f"Computing Offloading: ")
         best_offloading_layer = offloading_algo.static_offloading()
 
         result = {
