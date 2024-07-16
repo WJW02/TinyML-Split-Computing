@@ -1,6 +1,9 @@
+import os
 from logging import getLogger
 
 from flask_server import init_app
+
+os.environ.setdefault("TF_ENABLE_ONEDNN_OPTS", "0")
 
 if __name__ != "__main__":
     gunicorn_logger = getLogger("gunicorn.error")
