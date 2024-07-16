@@ -1,7 +1,7 @@
 import time
 
-from offloading_tools.offloading_message import OffloadingMessage
 from logger.Logger import Logger
+from offloading_tools.offloading_message import OffloadingMessage
 
 logger = Logger().get_logger(__name__)
 
@@ -10,6 +10,7 @@ class OffloadingDevice:
     def __init__(self, device_id: str):
         self.device_id = device_id
         self.sent_messages = []
+        self.layers_inference_time = []
 
     def add_message(self, message: OffloadingMessage) -> None:
         self.sent_messages.append(message)
@@ -67,3 +68,8 @@ class OffloadingDevicesManager:
         if as_dict:
             return [device.to_dict() for device in self.connected_devices]
         return self.connected_devices
+
+    def update_device_inference_time(self, device_id, layers_inference_time: dict):
+        logger.info(f"Updating device {device_id} inference time")
+        device = self.get_device(device_id)
+        device.layers_inference_time = [layers_inference_time[layer] for layer in layers_inference_time.keys()]
