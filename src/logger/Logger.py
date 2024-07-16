@@ -6,9 +6,11 @@ import os
 
 
 class Logger:
-    def __init__(self, config_path='./logger/logger_config.json'):
-        self.config_path = config_path
-        self.log_dir = 'logs'
+    def __init__(self, config_path='logger_config.json'):
+        # Get the directory of the current script
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.config_path = os.path.join(script_dir, config_path)  # Use the script's directory for the config file
+        self.log_dir = os.path.join(script_dir, 'logs')  # Use the script's directory for the logs
         self.log_file = 'app.log'
         self.configure_logger()
 
@@ -36,6 +38,15 @@ class Logger:
 
             # Configure the logger
             logging.config.dictConfig(config)
+        except FileNotFoundError:
+            print(f"Configuration file not found: {self.config_path}")
+            raise
+        except json.JSONDecodeError:
+            print(f"Error decoding JSON from the configuration file: {self.config_path}")
+            raise
+        except KeyError as e:
+            print(f"Missing configuration key: {e}")
+            raise
         except Exception as e:
             print(f"Error configuring logger: {e}")
             raise
@@ -62,15 +73,18 @@ class Logger:
 
 # Usage example
 if __name__ == "__main__":
-    logger_instance = Logger(config_path='logger_config.json')
-    logger = logger_instance.get_logger(__name__)
+    try:
+        logger_instance = Logger(config_path='logger_config.json')
+        logger = logger_instance.get_logger(__name__)
 
-    # Log messages
-    logger_instance.log_message('debug', "This is a debug message.")
-    logger_instance.log_message('info', "This is an info message.")
-    logger_instance.log_message('warning', "This is a warning message.")
-    logger_instance.log_message('error', "This is an error message.")
-    logger_instance.log_message('critical', "This is a critical message.")
+        # Log messages
+        logger_instance.log_message('debug', "This is a debug message.")
+        logger_instance.log_message('info', "This is an info message.")
+        logger_instance.log_message('warning', "This is a warning message.")
+        logger_instance.log_message('error', "This is an error message.")
+        logger_instance.log_message('critical', "This is a critical message.")
 
-    # Delete logs older than 7 days
-    logger_instance.delete_old_logs(days=7)
+        # Delete logs older than 7 days
+        logger_instance.delete_old_logs(days=7)
+    except Exception as e:
+        print(f"Failed to initialize logger: {e}")
