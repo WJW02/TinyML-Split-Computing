@@ -1,11 +1,15 @@
+import base64
+
+import numpy as np
 from flask import jsonify
 from flask import request
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask_smorest import abort
 
-from configs.configs import OffloadingApiConfigs, OffloadingManagerConfigs, OffloadingModelConfig
-from flask_server.offloading.schemas import OffloadingEvaluationMessages, OffloadingErrorSchema, OffloadingEvaluationSchema
+from configs.configs import OffloadingApiConfigs, OffloadingModelConfig
+from flask_server.offloading.schemas import OffloadingEvaluationMessages, OffloadingErrorSchema, \
+    OffloadingEvaluationSchema
 from logger.Logger import Logger
 from offloading_tools.offloading_communication import OffloadingCommunicationHandler
 from offloading_tools.offloading_manager import OffloadingManager
@@ -27,7 +31,7 @@ offloading_communication_handler = OffloadingCommunicationHandler()
 @offloading_blp.route("/evaluate", methods=["POST"])
 class OffloadingEvaluationView(MethodView):
     @offloading_blp.response(status_code=200, description=OffloadingEvaluationMessages.SUCCESS_RESPONSE,
-                             schema=OffloadingEvaluationSchema)
+                             schema=OffloadingEvaluationSchema, example=OffloadingEvaluationMessages.SUCCESS_RESPONSE)
     @offloading_blp.response(status_code=500, description=OffloadingEvaluationMessages.UNEXPECTED_ERROR,
                              schema=OffloadingErrorSchema,
                              example={"message": OffloadingEvaluationMessages.UNEXPECTED_ERROR})
@@ -53,7 +57,6 @@ class OffloadingEvaluationView(MethodView):
         device_id = body.get("device_id")
         # Can be set but should always be 0 for offloading evaluation
         start_layer_index = body.get("start_layer_index")
-        working_strategy = OffloadingManagerConfigs.DEFAULT_WORKING_STRATEGY
 
         if not all([model_name, device_id, start_layer_index is not None]):
             abort(400, description=OffloadingEvaluationMessages.MISSING_KEYS,
@@ -65,7 +68,6 @@ class OffloadingEvaluationView(MethodView):
 
             # Initializes the offloading tool
             offloading_tool = OffloadingManager(
-                working_strategy=working_strategy,
                 start_layer_index=start_layer_index
             )
 
@@ -74,6 +76,7 @@ class OffloadingEvaluationView(MethodView):
                 model_name=model_name,
                 model_path=OffloadingModelConfig.MODEL_PATH.replace("<MODEL_NAME>", model_name),
                 model_analytics_path=OffloadingModelConfig.MODEL_ANALYTICS_PATH.replace("<MODEL_NAME>", model_name),
+                load_model=True,
                 load_model_data=True
             )
 
@@ -114,26 +117,53 @@ class OffloadingCommunicationView(MethodView):
 @offloading_blp.route("/model-initialization", methods=["POST"])
 class OffloadingModelInitializationView(MethodView):
     def post(self):
-        model_name = request.args.get("model_name")
-        model_data = request.args.get("model_data")
+        body = request.get_json() or {}
+        model_name = body.get("model_name")
+        model_data_b64 = body.get("model_data")
+        shape = body.get("shape")
 
-        if not all([model_name, model_data]):
-            abort(400, description=OffloadingEvaluationMessages.MISSING_KEYS,
-                  message=OffloadingEvaluationMessages.MISSING_KEYS)
+        # Decode the base64 string back to bytes and reconstruct the tensor
+        model_data_bytes = base64.b64decode(model_data_b64)
+        model_data_np = np.frombuffer(model_data_bytes, dtype=np.float32).reshape(shape)  # Adjust dtype as necessary
 
         offloading_model = OffloadingModel(
             model_name=model_name,
             model_path=OffloadingModelConfig.MODEL_PATH.replace("<MODEL_NAME>", model_name),
             model_analytics_path=OffloadingModelConfig.MODEL_ANALYTICS_PATH.replace("<MODEL_NAME>", model_name),
+            load_model=True,
             load_model_data=False
         )
 
         try:
-            result = offloading_model.perform_model_initialization(input_data=model_data)
-            return jsonify({"text": result}), 200
+            result = offloading_model.perform_model_initialization(input_data=model_data_np)
+            return jsonify({"text": str(result)}), 200
         except Exception as e:
             abort(500, description=OffloadingEvaluationMessages.UNEXPECTED_ERROR, message=str(e))
 
 
-class OffloadingInferenceView:
-    pass
+@offloading_blp.route("/model-inference", methods=["POST"])
+class OffloadingInferenceView(MethodView):
+    def post(self):
+        body = request.get_json() or {}
+        model_name = body.get("model_name")
+        start_layer_index = body.get("start_layer_index")
+        model_data_b64 = body.get("model_data")
+        shape = body.get("shape")
+
+        # Decode the base64 string back to bytes and reconstruct the tensor
+        model_data_bytes = base64.b64decode(model_data_b64)
+        model_data_np = np.frombuffer(model_data_bytes, dtype=np.float32).reshape(shape)  # Adjust dtype as necessary
+
+        offloading_model = OffloadingModel(
+            model_name=model_name,
+            model_path=OffloadingModelConfig.MODEL_PATH.replace("<MODEL_NAME>", model_name),
+            model_analytics_path=OffloadingModelConfig.MODEL_ANALYTICS_PATH.replace("<MODEL_NAME>", model_name),
+            load_model=True,
+            load_model_data=False
+        )
+
+        try:
+            result = offloading_model.trigger_prediction(input_data=model_data_np, start_layer_index=start_layer_index)
+            return jsonify({"text": str(result)}), 200
+        except Exception as e:
+            abort(500, description=OffloadingEvaluationMessages.UNEXPECTED_ERROR, message=str(e))
