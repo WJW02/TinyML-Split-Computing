@@ -91,7 +91,7 @@ class OffloadingAlgo:
         logger.info("Computation Completed - Offloading Summary:")
         logger.info(f"Lowest Evaluation: {self.lowest_evaluation}")
         logger.info(f"Best Offloading Layer: {self.best_offloading_layer}")
-
+        logger.info(f"Ended Offloading Process")
         return self.best_offloading_layer
 
     def get_info(self):
