@@ -88,8 +88,11 @@ class CustomModel:
 
     @staticmethod
     def reshape_input_data(prediction_data, expected_input_shape):
-        if prediction_data.shape[1:] != expected_input_shape:
-            prediction_data = tf.image.resize(prediction_data, expected_input_shape)
+        try:
+            if prediction_data.shape[1:] != expected_input_shape:
+                prediction_data = tf.image.resize(prediction_data, expected_input_shape)
+        except Exception as e:
+            logger.error(f"Failed to reshape input data: {e}")
         return prediction_data
 
     def predict_single_layer(self, layer_id, layer_input_data):
