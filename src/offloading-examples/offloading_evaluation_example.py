@@ -4,7 +4,6 @@ if __name__ == "__main__":
     message_data_dict = {
         "model_name": "test_model",
         "start_layer_index": 0,
-        "working_strategy": "working_strategy",
         "offloading_information": {
             "layers_inference_time": {
                 'layer_0': 1.0,
