@@ -8,7 +8,7 @@ from model_data import ModelData
 if __name__ == '__main__':
     # Configurations for model and dataset
     model_name = CustomModelExample.DEFAULT_MODEL_NAME
-    model_path = CustomModelExample.MODELS_DIR_PATH
+    model_path = CustomModelExample.MODEL_PATH
     image_size = CustomModelExample.IMAGE_SIZE
     dataset_path = CustomModelExample.DATASET_PATH
     model_store_dir = CustomModelExample.MODELS_DIR_PATH
