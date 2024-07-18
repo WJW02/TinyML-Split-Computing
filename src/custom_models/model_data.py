@@ -10,7 +10,7 @@ logger = Logger().get_logger(__name__)
 
 
 class ModelData:
-    def __init__(self, image_size: int = 10, num_images: int = 2, dataset_path: str = ''):
+    def __init__(self, image_size: int = 20, num_images: int = 2, dataset_path: str = ''):
         self.image_size = image_size
         self.num_images = num_images
         self.dataset_path = dataset_path
@@ -20,6 +20,7 @@ class ModelData:
 
     def generate_dataset(self):
         logger.info("Creating Data for Inference and Training")
+        logger.info(f"Images size: {self.image_size}")
         # Generate random images with values between 1 and 10
         rand_list = np.random.randint(0, 2, self.num_images)
         # Create labels: 1 if the image contains the number 1, else 0
