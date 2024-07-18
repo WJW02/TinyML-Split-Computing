@@ -1,4 +1,4 @@
-import json
+import os
 import time
 
 import pandas as pd
@@ -42,20 +42,19 @@ class OffloadingModel:
         self.num_layers = self.custom_model.num_layers
 
     def load_model_analytics(self, model_analytics_path: str = None):
-        logger.info("Loading Model Analytics")
-        if model_analytics_path is not None:
-            self.model_analytics_path = model_analytics_path
-        logger.info(f"Model Analytics Path: {self.model_analytics_path}")
-        try:
-            with open(self.model_analytics_path, 'r') as f:
-                self.model_analytics = json.load(f)
-            self.store_model_analytics()
-            logger.debug(f"Model Analytics: {self.model_analytics}")
+        if os.path.exists(self.model_analytics_path):
+            logger.info("Loading existing model analytics")
+            try:
+                model_analytics_df = pd.read_json(self.model_analytics_path)
+                self.model_analytics = model_analytics_df.to_dict()
+                return self.model_analytics
+            except Exception as e:
+                logger.error(f"Error loading model analytics: {e}")
+                return {}
+        else:
+            logger.info("No existing model analytics found")
+            return {}
 
-        except Exception as e:
-            logger.error(f"Failed to load model analytics: {e}")
-
-    #TODO: FIX bug on evaluation of layers that saves only the used layer on a certain predictio
     def trigger_prediction(self, input_data, start_layer_index: int = 0, end_layer_index: int = None):
         # TODO: Remove this
         self.predictions = [] if start_layer_index == 0 else [input_data]
@@ -63,7 +62,7 @@ class OffloadingModel:
         logger.info(f"Triggering prediction from start_layer_index: {start_layer_index}")
 
         # We use only the layers from start_layer_index to end_layer_index
-        end_layer_index = self.num_layers - 1 if end_layer_index is None else end_layer_index
+        end_layer_index = self.num_layers if end_layer_index is None else end_layer_index
         if end_layer_index > self.num_layers:
             logger.warning(f"Invalid end_layer_index: {end_layer_index}. Setting to {self.num_layers}")
             end_layer_index = self.num_layers
@@ -88,11 +87,13 @@ class OffloadingModel:
             self.evaluate_analytics(
                 layer_name=layer_index,
                 layer_inference_time=layer_inference_time,
-                layer_size=layer_size
+                layer_size=layer_size,
+                old_analytics=self.model_analytics
             )
 
-    def evaluate_analytics(self, layer_name, layer_inference_time, layer_size):
+    def evaluate_analytics(self, layer_name, layer_inference_time, layer_size, old_analytics):
         logger.info(f"Updating model analytics for layer: {layer_name}")
+        logger.info(f"Old Analytics: {old_analytics}")
         self.model_analytics[layer_name] = {
             'layer_size': layer_size,
             'layer_inference_time': layer_inference_time
@@ -107,8 +108,6 @@ class OffloadingModel:
         for layer in self.model_analytics.keys():
             self.layers_sizes.append(self.model_analytics[layer]['layer_size'])
             self.layers_inference_time.append(self.model_analytics[layer]['layer_inference_time'])
-
-        logger.info(f"Model Analytics: {str(self.model_analytics)}")
         model_analytics_df = pd.DataFrame.from_dict(self.model_analytics)
         model_analytics_df.to_json(self.model_analytics_path)
 

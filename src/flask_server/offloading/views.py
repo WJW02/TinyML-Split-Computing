@@ -159,7 +159,7 @@ class OffloadingInferenceView(MethodView):
             model_path=OffloadingModelConfig.MODEL_PATH.replace("<MODEL_NAME>", model_name),
             model_analytics_path=OffloadingModelConfig.MODEL_ANALYTICS_PATH.replace("<MODEL_NAME>", model_name),
             load_model=True,
-            load_model_data=False
+            load_model_data=True
         )
 
         try:
