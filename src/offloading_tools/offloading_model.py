@@ -55,12 +55,10 @@ class OffloadingModel:
         except Exception as e:
             logger.error(f"Failed to load model analytics: {e}")
 
+    #TODO: FIX bug on evaluation of layers that saves only the used layer on a certain predictio
     def trigger_prediction(self, input_data, start_layer_index: int = 0, end_layer_index: int = None):
         # TODO: Remove this
         self.predictions = [] if start_layer_index == 0 else [input_data]
-
-        layer = self.custom_model.get_model_layer(start_layer_index)
-        expected_input_shape = layer.input.shape[1:]
 
         logger.info(f"Triggering prediction from start_layer_index: {start_layer_index}")
 
@@ -80,9 +78,7 @@ class OffloadingModel:
             start_time = time.time()
 
             prediction_data = input_data if layer_index == 0 else self.predictions[-1]
-            #prediction_data = self.custom_model.reshape_input_data(prediction_data, expected_input_shape)
             prediction = self.custom_model.predict_single_layer(layer_index, prediction_data)
-            expected_input_shape = layer.input.shape[1:]
             end_time = time.time()
 
             self.predictions.append(prediction)
