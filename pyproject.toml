@@ -36,7 +36,8 @@ dependencies = [
     "git-changelog==2.5.2",
     "scikit-learn==1.5.1",
     "pillow==10.4.0",
-    "tensorflow==2.16.2"
+    "tensorflow==2.16.2",
+    "pandas==2.2.2",
 ]
 
 [project.optional-dependencies]
