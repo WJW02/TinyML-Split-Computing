@@ -34,49 +34,43 @@ class OffloadingModel:
         return self.to_dict(keep_model=False, filter_predictions=True)
 
     def load_custom_model(self, model_path: str = None):
+        logger.info("Loading Custom Model")
         if model_path:
             self.model_path = model_path
-        logger.info("Loading Custom Model")
         self.custom_model = CustomModel(self.model_name, self.model_path)
         self.custom_model.load_model(self.model_path)
         self.num_layers = self.custom_model.num_layers
 
     def load_model_analytics(self, model_analytics_path: str = None):
+        logger.info("Loading existing model analytics")
         if os.path.exists(self.model_analytics_path):
-            logger.info("Loading existing model analytics")
             try:
                 model_analytics_df = pd.read_json(self.model_analytics_path)
                 self.model_analytics = model_analytics_df.to_dict()
-                return self.model_analytics
+                self.store_model_analytics()
             except Exception as e:
                 logger.error(f"Error loading model analytics: {e}")
-                return {}
         else:
             logger.info("No existing model analytics found")
-            return {}
 
     def trigger_prediction(self, input_data, start_layer_index: int = 0, end_layer_index: int = None):
-        # TODO: Remove this
+        logger.info(f"Triggering prediction from start_layer_index: {start_layer_index}")
         self.predictions = [] if start_layer_index == 0 else [input_data]
 
-        logger.info(f"Triggering prediction from start_layer_index: {start_layer_index}")
-
-        # We use only the layers from start_layer_index to end_layer_index
-        end_layer_index = self.num_layers if end_layer_index is None else end_layer_index
-        if end_layer_index > self.num_layers:
-            logger.warning(f"Invalid end_layer_index: {end_layer_index}. Setting to {self.num_layers}")
+        # Set end_layer_index to the number of layers if not provided
+        if end_layer_index is None or end_layer_index > self.num_layers:
             end_layer_index = self.num_layers
+            if end_layer_index is None:
+                logger.warning(f"Invalid end_layer_index: {end_layer_index}. Setting to {self.num_layers}")
+
         logger.info(f"Predicting layers from {start_layer_index} to {end_layer_index}")
         layers_to_use = self.custom_model.model.layers[start_layer_index:end_layer_index]
 
-        for layer_index, layer in enumerate(layers_to_use):
-            layer_index += start_layer_index
-            if layer_index == end_layer_index:
-                break
+        for layer_index, layer in enumerate(layers_to_use, start=start_layer_index):
             logger.info(f"Predicting Layer: {layer_index}")
             start_time = time.time()
 
-            prediction_data = input_data if layer_index == 0 else self.predictions[-1]
+            prediction_data = input_data if layer_index == start_layer_index else self.predictions[-1]
             prediction = self.custom_model.predict_single_layer(layer_index, prediction_data)
             end_time = time.time()
 
@@ -112,14 +106,19 @@ class OffloadingModel:
         model_analytics_df.to_json(self.model_analytics_path)
 
     def to_dict(self, keep_model: bool = False, filter_predictions: bool = False):
-        offloading_model_as_dict = self.__dict__
-        offloading_model_as_dict['custom_model'] = self.custom_model.__dict__
-        # Remove the custom model from the dict
+        # Copy relevant attributes to the new dictionary
+        offloading_model_as_dict = {key: value for key, value in self.__dict__.items() if key != 'custom_model'}
+
+        # Handle custom_model
+        custom_model_dict = self.custom_model.__dict__.copy()
         if not keep_model:
-            del offloading_model_as_dict['custom_model']['model']
-        if filter_predictions:
-            if self.predictions:
-                offloading_model_as_dict['predictions'] = offloading_model_as_dict['predictions'][-1]
+            custom_model_dict.pop('model', None)
+        offloading_model_as_dict['custom_model'] = custom_model_dict
+
+        # Handle predictions
+        if filter_predictions and offloading_model_as_dict['predictions']:
+            offloading_model_as_dict['predictions'] = offloading_model_as_dict['predictions'][-1]
+
         return offloading_model_as_dict
 
     def perform_model_initialization(self, input_data):
