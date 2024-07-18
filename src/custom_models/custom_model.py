@@ -19,6 +19,7 @@ class CustomModel:
         self.model_path = None
         self.num_layers = None
         self.model = None
+        self.model_name = None
 
     def build_model(self):
         logger.info("Building the model")
@@ -57,8 +58,10 @@ class CustomModel:
         return prediction
 
     def save_model(self, model_name: str = 'test_model'):
-        os.makedirs(os.path.dirname(f'{self.save_path}'), exist_ok=True)
-        model_path = f'{self.save_path}/{model_name}.keras'
+        self.model_name = model_name
+        logger.info(f"Saving the model with name: {model_name}")
+        os.makedirs(f'{self.save_path}', exist_ok=True)
+        model_path = f'{self.save_path}/{model_name}/{model_name}.keras'
         self.model.save(model_path)
         logger.info(f"Model saved at path: {model_path}")
 
