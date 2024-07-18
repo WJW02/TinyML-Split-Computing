@@ -163,7 +163,9 @@ class OffloadingInferenceView(MethodView):
         )
 
         try:
-            result = offloading_model.trigger_prediction(input_data=model_data_np, start_layer_index=start_layer_index)
+            offloading_model.trigger_prediction(input_data=model_data_np, start_layer_index=start_layer_index,
+                                                end_layer_index=None)
+            result = offloading_model.predictions
             return jsonify({"text": str(result)}), 200
         except Exception as e:
             abort(500, description=OffloadingEvaluationMessages.UNEXPECTED_ERROR, message=str(e))
