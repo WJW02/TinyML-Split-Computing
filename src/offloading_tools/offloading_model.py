@@ -55,17 +55,33 @@ class OffloadingModel:
         except Exception as e:
             logger.error(f"Failed to load model analytics: {e}")
 
-    def trigger_prediction(self, input_data, start_layer_index: int = 0):
-        self.predictions = []
+    def trigger_prediction(self, input_data, start_layer_index: int = 0, end_layer_index: int = None):
+        # TODO: Remove this
+        self.predictions = [] if start_layer_index == 0 else [input_data]
+
         layer = self.custom_model.get_model_layer(start_layer_index)
-        logger.info(f"Triggering prediction from layer: {layer}")
         expected_input_shape = layer.input.shape[1:]
-        for layer_id, layer in enumerate(self.custom_model.model.layers):
-            logger.debug(f"Predicting layer: {layer_id}")
+
+        logger.info(f"Triggering prediction from start_layer_index: {start_layer_index}")
+
+        # We use only the layers from start_layer_index to end_layer_index
+        end_layer_index = self.num_layers - 1 if end_layer_index is None else end_layer_index
+        if end_layer_index > self.num_layers:
+            logger.warning(f"Invalid end_layer_index: {end_layer_index}. Setting to {self.num_layers}")
+            end_layer_index = self.num_layers
+        logger.info(f"Predicting layers from {start_layer_index} to {end_layer_index}")
+        layers_to_use = self.custom_model.model.layers[start_layer_index:end_layer_index]
+
+        for layer_index, layer in enumerate(layers_to_use):
+            layer_index += start_layer_index
+            if layer_index == end_layer_index:
+                break
+            logger.info(f"Predicting Layer: {layer_index}")
             start_time = time.time()
-            prediction_data = input_data if layer_id == 0 else self.predictions[-1]
-            prediction_data = self.custom_model.reshape_input_data(prediction_data, expected_input_shape)
-            prediction = self.custom_model.predict_single_layer(layer_id, prediction_data)
+
+            prediction_data = input_data if layer_index == 0 else self.predictions[-1]
+            #prediction_data = self.custom_model.reshape_input_data(prediction_data, expected_input_shape)
+            prediction = self.custom_model.predict_single_layer(layer_index, prediction_data)
             expected_input_shape = layer.input.shape[1:]
             end_time = time.time()
 
@@ -74,7 +90,7 @@ class OffloadingModel:
             layer_size = self.custom_model.get_layer_size_in_bits(layer_output=prediction)
 
             self.evaluate_analytics(
-                layer_name=layer_id,
+                layer_name=layer_index,
                 layer_inference_time=layer_inference_time,
                 layer_size=layer_size
             )
@@ -91,6 +107,7 @@ class OffloadingModel:
         logger.info("Storing model analytics")
         # Updates the attributes related to layers inference times
         self.num_layers = self.custom_model.num_layers
+        self.layers_sizes, self.layers_inference_time = [], []
         for layer in self.model_analytics.keys():
             self.layers_sizes.append(self.model_analytics[layer]['layer_size'])
             self.layers_inference_time.append(self.model_analytics[layer]['layer_inference_time'])
