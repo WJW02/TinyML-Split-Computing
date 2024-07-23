@@ -41,6 +41,11 @@ if __name__ == '__main__':
     custom_model.evaluate_model()
     custom_model.save_model(model_name=model_name)
 
+    # Save all layers
+    num_layers = len(custom_model.model.layers)
+    for i in range(num_layers):
+        custom_model.save_layer(layer_id=i, layer_name=f'layer_{i}')
+
     # Simple prediction to test the model
     correct_predictions = 0
     for data, label in zip(model_data.images_paths, model_data.labels):
@@ -52,3 +57,4 @@ if __name__ == '__main__':
         if predicted_value == label[0]:
             correct_predictions += 1
     print(f"Correct Predictions: {correct_predictions}/{len(model_data.images_paths)}")
+

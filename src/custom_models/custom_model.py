@@ -96,3 +96,29 @@ class CustomModel:
         intermediate_model = tf.keras.Model(inputs=layer.input, outputs=layer.output)
         layer_output = intermediate_model.predict(layer_input_data)
         return layer_output
+
+    def save_layer(self, layer_id: int, layer_name: str = None):
+        if layer_id >= len(self.model.layers):
+            raise IndexError("Layer index out of range")
+
+        logger.info(f"Saving layer [{layer_id}]")
+        layer = self.get_model_layer(layer_id)
+        intermediate_model = tf.keras.Model(inputs=layer.input, outputs=layer.output)
+
+        # Save the layer model
+        if not layer_name:
+            layer_name = f"layer_{layer_id}"
+        os.makedirs(f'{self.save_path}/{self.model_name}/layers', exist_ok=True)
+        layer_model_path = os.path.join(self.save_path, f'{self.model_name}/layers/{layer_name}.keras')
+        intermediate_model.save(layer_model_path)
+        logger.info(f"Layer model saved at path: {layer_model_path}")
+
+    def load_layer(self, layer_name: str):
+        logger.info(f"Loading layer model from path: {layer_name}")
+        try:
+            layer_model_path = os.path.join(self.save_path, f'{self.model_name}/{layer_name}.keras')
+            layer_model = tf.keras.models.load_model(layer_model_path)
+            return layer_model
+        except Exception as e:
+            print(f"Error loading layer model: {e}")
+            logger.error(f"Failed to load layer model: {e}")
