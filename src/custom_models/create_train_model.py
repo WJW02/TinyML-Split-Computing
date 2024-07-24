@@ -39,12 +39,11 @@ if __name__ == '__main__':
     custom_model.train_model(epochs=epochs)
     custom_model.evaluate_model()
     custom_model.save_model(model_name=model_name)
-    custom_model.keras_to_tflite(model_name)
 
     # Save all layers
     num_layers = len(custom_model.model.layers)
     for i in range(num_layers):
-        custom_model.save_layer(layer_id=i, layer_name=f'layer_{i}')
+        custom_model.save_layer(layer_id=i, layer_name=f'layer_{i}', save_tflite=True)
 
 
     """

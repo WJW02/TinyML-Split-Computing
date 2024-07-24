@@ -98,7 +98,7 @@ class CustomModel:
         layer_output = intermediate_model.predict(layer_input_data)
         return layer_output
 
-    def save_layer(self, layer_id: int, layer_name: str = None):
+    def save_layer(self, layer_id: int, layer_name: str = None, save_tflite: bool = False):
         if layer_id >= len(self.model.layers):
             raise IndexError("Layer index out of range")
 
@@ -109,10 +109,22 @@ class CustomModel:
         # Save the layer model
         if not layer_name:
             layer_name = f"layer_{layer_id}"
-        os.makedirs(f'{self.save_path}/{self.model_name}/layers', exist_ok=True)
-        layer_model_path = os.path.join(self.save_path, f'{self.model_name}/layers/{layer_name}.keras')
+        os.makedirs(f'{self.save_path}/{self.model_name}/layers/keras', exist_ok=True)
+        layer_model_path = os.path.join(self.save_path, f'{self.model_name}/layers/keras/{layer_name}.keras')
         intermediate_model.save(layer_model_path)
         logger.info(f"Layer model saved at path: {layer_model_path}")
+
+        if save_tflite:
+            # Convert the model to TFLite format
+            converter = tf.lite.TFLiteConverter.from_keras_model(layer)
+            tflite_model = converter.convert()
+
+            # Define the output .tflite file path
+            os.makedirs(f'{self.save_path}/{self.model_name}/layers/tflite', exist_ok=True)
+            tflite_file_name = layer_model_path.replace('keras', 'tflite')
+            # Save the .tflite model to the specified path
+            with open(tflite_file_name, 'wb') as f:
+                f.write(tflite_model)
 
     def load_layer(self, layer_name: str):
         logger.info(f"Loading layer model from path: {layer_name}")
@@ -124,16 +136,4 @@ class CustomModel:
             print(f"Error loading layer model: {e}")
             logger.error(f"Failed to load layer model: {e}")
 
-    def keras_to_tflite(self, model_name):
-        logger.info("Converting the model to TFLite")
-        # Convert the full model to TFLite format
-        converter = tf.lite.TFLiteConverter.from_keras_model(self.model)
-        tflite_model = converter.convert()
 
-        self.model_name = model_name
-        logger.info(f"Saving the model with name: {model_name}")
-        os.makedirs(f'{self.save_path}', exist_ok=True)
-        model_path = f'{self.save_path}/{model_name}/{model_name}.tflite'
-        with open(model_path, 'wb') as f:
-            f.write(tflite_model)
-        logger.info(f"Model saved at path: {model_path}")
