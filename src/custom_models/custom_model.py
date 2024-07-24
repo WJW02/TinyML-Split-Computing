@@ -22,6 +22,7 @@ class CustomModel:
         self.model_name = None
 
     def build_model(self):
+        logger.info(f"Building the model for image size{self.model_data.image_size}")
         logger.info("Building the model")
         model = models.Sequential()
         model.add(layers.Conv2D(32, (3, 3), activation='relu',
@@ -122,3 +123,17 @@ class CustomModel:
         except Exception as e:
             print(f"Error loading layer model: {e}")
             logger.error(f"Failed to load layer model: {e}")
+
+    def keras_to_tflite(self, model_name):
+        logger.info("Converting the model to TFLite")
+        # Convert the full model to TFLite format
+        converter = tf.lite.TFLiteConverter.from_keras_model(self.model)
+        tflite_model = converter.convert()
+
+        self.model_name = model_name
+        logger.info(f"Saving the model with name: {model_name}")
+        os.makedirs(f'{self.save_path}', exist_ok=True)
+        model_path = f'{self.save_path}/{model_name}/{model_name}.tflite'
+        with open(model_path, 'wb') as f:
+            f.write(tflite_model)
+        logger.info(f"Model saved at path: {model_path}")
