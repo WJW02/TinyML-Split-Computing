@@ -10,7 +10,7 @@ logger = Logger().get_logger(__name__)
 
 
 class ModelData:
-    def __init__(self, image_size: int = 20, num_images: int = 2, dataset_path: str = ''):
+    def __init__(self, image_size: int, num_images: int = 2, dataset_path: str = ''):
         self.image_size = image_size
         self.num_images = num_images
         self.dataset_path = dataset_path

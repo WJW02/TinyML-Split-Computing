@@ -2,13 +2,12 @@ import base64
 import os
 
 import requests
-import tensorflow as tf
-
+from configs.configs import CustomModelExample
 from custom_models.model_data import ModelData
 
 if __name__ == '__main__':
     # Loading example data
-    model_data = ModelData()
+    model_data = ModelData(image_size=CustomModelExample.IMAGE_SIZE)
     dataset_path = '../custom_models/models/test_model/data'
     model_data.load_from_path(path=dataset_path)
     image_path, label = (model_data.images_paths[0], model_data.labels[0])

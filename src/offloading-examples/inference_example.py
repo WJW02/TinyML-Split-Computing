@@ -15,7 +15,7 @@ if __name__ == '__main__':
     model_path = "../custom_models/models/test_model/test_model.keras"
     image_size = CustomModelExample.IMAGE_SIZE
 
-    model_data = ModelData()
+    model_data = ModelData(image_size=image_size)
     dataset_path = '../custom_models/models/test_model/data'
     model_data.load_from_path(path=dataset_path)
     image_path, label = (model_data.images_paths[0], model_data.labels[0])

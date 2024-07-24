@@ -25,7 +25,7 @@ class CustomModelExample:
     MODELS_DIR_PATH: str = "models"
     DATASET_PATH: str = f"{MODELS_DIR_PATH}/{DEFAULT_MODEL_NAME}/data"
     MODEL_PATH: str = f"{MODELS_DIR_PATH}/{DEFAULT_MODEL_NAME}"
-    IMAGE_SIZE: int = 20
+    IMAGE_SIZE: int = 10
     BINARY_CLASSIFICATION_THRESHOLD: float = 0.5
     NUM_TRAINING_SAMPLES: int = 100
     NUM_TRAINING_EPOCH: int = 10
