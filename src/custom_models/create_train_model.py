@@ -1,6 +1,6 @@
 import os
 
-from configs.configs import CustomModelExample
+from src.configs.configs import CustomModelExample
 from custom_model import CustomModel
 from model_data import ModelData
 
@@ -44,18 +44,3 @@ if __name__ == '__main__':
     num_layers = len(custom_model.model.layers)
     for i in range(num_layers):
         custom_model.save_layer(layer_id=i, layer_name=f'layer_{i}', save_tflite=True)
-
-
-    """
-    # Simple prediction to test the model
-    correct_predictions = 0
-    for data, label in zip(model_data.images_paths, model_data.labels):
-        image_path = data
-        image_array = model_data.get_image_as_raw(image_path)
-        prediction = custom_model.predict(image_path=None, img_array=image_array)
-        # Check if the prediction is greater than the threshold
-        predicted_value = 1 if prediction[0][0] >= threshold else 0
-        if predicted_value == label[0]:
-            correct_predictions += 1
-    print(f"Correct Predictions: {correct_predictions}/{len(model_data.images_paths)}")
-    """

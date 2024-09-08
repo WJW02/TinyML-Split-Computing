@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFont
 
-from logger.Logger import Logger
+from src.logger.Logger import Logger
 
 logger = Logger().get_logger(__name__)
 

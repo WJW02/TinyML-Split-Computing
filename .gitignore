@@ -1,6 +1,8 @@
 venv
 .venv
-models
+models/test_model
+
+
 
 *egg-info
 *build

@@ -5,8 +5,8 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import layers, models
 
-from custom_models.model_data import ModelData
-from logger.Logger import Logger
+from src.custom_models.model_data import ModelData
+from src.logger.Logger import Logger
 
 logger = Logger().get_logger(__name__)
 
