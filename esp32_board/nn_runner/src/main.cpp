@@ -331,7 +331,6 @@ void publishDeviceAnaytics(){
 * ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 */
 void predictAndOffload(){
-
     // Generate the JSON message & Fill in the JSON data
     jsonDoc["last_computed_layer"] = ""+String(offloadingLayer)+"";
     jsonDoc["timestamp"] = getCurrTimeStr();
