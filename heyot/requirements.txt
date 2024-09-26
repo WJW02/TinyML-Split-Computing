@@ -10,6 +10,6 @@ zeroconf==0.71.0
 aiocoap==0.4.7
 pandas
 Django==3.2.8
-tensorflow
+tensorflow==2.15.0
 djangorestframework==3.14.0
 Pillow==10.0.0
