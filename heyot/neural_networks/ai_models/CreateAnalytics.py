@@ -33,9 +33,9 @@ def predict_single_layer(layer, layer_input_data, analytics_path):
     intermediate_model = tf.keras.Model(inputs=layer.input, outputs=layer.output)
     print(layer.input, layer.output)
     # Predict using the current layer, keeps track of the time it takes
-    t_begin = time.time() * 1000
+    t_begin = time.time_ns() / 1_000_000_000
     layer_output = intermediate_model.predict(layer_input_data)
-    t_end = time.time() * 1000
+    t_end = time.time_ns() / 1_000_000_000
 
     create_analytics_csv(
         analytics_path = analytics_path,
