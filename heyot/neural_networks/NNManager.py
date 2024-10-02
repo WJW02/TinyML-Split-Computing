@@ -4,6 +4,7 @@ import pandas as pd
 import logging
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,6 @@ class NNManager:
         self.layer_outputs = []
         self.analytics_data = None
         
-
     def update_csv_file(self, layer_id: int, new_inference_time: float) -> None: 
         """
         After every new execution of the Neural Network, identified by it's id <nn_id>, we updated 
@@ -28,10 +28,20 @@ class NNManager:
         start_time = time.time()  
         # Initialize the total time
         # Load the existing CSV file
-        csv_file_path = f"./neural_networks/ai_models/models/{self.nn_id}/analytics_data/analyticss.csv" 
+        csv_file_path = f"./neural_networks/ai_models/models/{self.nn_id}/analytics_data/analytics.csv" 
         analytics_data = pd.read_csv(csv_file_path)
+
+        # Get layer offset to write in correct row
+        try:
+            if (isinstance(self.model.layers[0], tf.keras.layers.InputLayer)):
+                layer_offset = 1
+            else:
+                layer_offset = 0
+        except Exception as e:
+            logger.error("Model hasn't been loaded yet")
+            
         # Update the inference time for the specified layer and save the updated data back to the CSV file
-        analytics_data.at[layer_id, 'layer_inference_time'] = new_inference_time 
+        analytics_data.at[layer_id-layer_offset, 'layer_inference_time'] = new_inference_time 
         analytics_data.to_csv(csv_file_path, index=False) 
         end_predict = time.time()
         self.update_time = end_predict - start_time
@@ -46,7 +56,6 @@ class NNManager:
             logger.error(f"Can't Load the model for nn with id: {self.nn_id} at path: {self.get_tflite_model_path()}")
             logger.error(f"Error:{e}")
 
-            
         end_time = time.time() # Measure the end time and tot time
         self.model_loading_time = end_time - start_time
         
@@ -59,6 +68,7 @@ class NNManager:
 
         # Create an intermediate model with the current layer
         intermediate_model = tf.keras.Model(inputs= self.model.input, outputs=layer.output)
+
         # Predict using the current layer keeps track of the time it takes
         start_predict = time.time_ns() / 1_000_000_000
         try:
@@ -67,8 +77,10 @@ class NNManager:
             logger.error(f"Can't Predict Layer: {layer_id}, {e}")
         end_predict = time.time_ns() / 1_000_000_000
         single_layer_predict_time = (end_predict - start_predict)
+
         # Updates the analytics of the model with the new inference time
-        # self.update_csv_file(layer_id=layer_id, new_inference_time=single_layer_predict_time)
+        self.update_csv_file(layer_id=layer_id, new_inference_time=single_layer_predict_time)
+
         # Append the layer name and output to the layer_outputs list
         self.layer_outputs.append({"name": layer.name, "output": str(layer_output.tolist())})
 
@@ -79,7 +91,10 @@ class NNManager:
         self.start_layer_index = start_layer_index   # Specify the starting layer (0-based index)
         num_layers = len(self.model.layers) 
         # Iterate through the layers starting from the specified index
-        [self.predic_single_layer(layer_id, layer_data=data) for layer_id in range(start_layer_index, num_layers)] 
+        for layer_id in range(start_layer_index, num_layers):
+            if (not isinstance(self.model.layers[layer_id], tf.keras.layers.InputLayer)):
+                self.predic_single_layer(layer_id, layer_data=data)
+
         return self.layer_outputs, self.model_loading_time, self.update_time
     
     def get_tflite_model_path(self) ->str:
@@ -90,11 +105,9 @@ class NNManager:
         self.analytics_data = pd.read_csv(self.nn_analytics_path)
         return self.analytics_data 
     
-    def make_fake_data(self):
+    def get_input_data(self):
         # Load and preprocess the input image for the first layer
-        input_image = load_img(f'./neural_networks/ai_models/models/{self.nn_id}/pred_data/pred_test_is_1.png', target_size=(10, 10))
+        input_image = load_img(f'./neural_networks/ai_models/models/{self.nn_id}/pred_data/pred_test_is_1.png', color_mode="grayscale", target_size=(96, 96))
         input_array = img_to_array(input_image)
-        input_array = tf.expand_dims(input_array, 0)  # Create batch axis
-        input_array = input_array / 255.0  # Normalize pixel values to be between 0 and 1
-        input_array = tf.image.resize(input_array, (10, 10))
+        input_array = np.array([input_array])
         return input_array

@@ -131,7 +131,7 @@ class MQTTClientManager:
                 model_input_data = layers_output_data["layer_output"].tolist()
 
                 if model_input_data[-1] == '':
-                    model_input_data = nn_manager.make_fake_data()
+                    model_input_data = nn_manager.get_input_data()
                 else:
                     model_input_data = [model_input_data]
                 logger.info(f"Layer layer Output: {model_input_data}")

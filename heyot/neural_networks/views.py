@@ -8,7 +8,7 @@ from django.shortcuts import render
 def test(request, nn_id):
     start_layer_index = 0
     nn_manager = NNManager(nn_id=nn_id)
-    fake_data = nn_manager.make_fake_data()
+    fake_data = nn_manager.get_input_data()
     layer_outputs, model_loading_time, update_time = nn_manager.perform_predict(start_layer_index=start_layer_index, data=fake_data)
     last_inference_time = nn_manager.get_model_analytics()["layer_inference_time"]
     result = {
